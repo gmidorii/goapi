@@ -1,4 +1,5 @@
 vendor/
+glide.lock
 
 ### OSX ###
 .DS_Store
