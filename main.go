@@ -6,6 +6,10 @@ import (
 	"log"
 	"os"
 
+	"net/http"
+
+	"fmt"
+
 	"./lib"
 	"gopkg.in/yaml.v2"
 )
@@ -23,7 +27,11 @@ func main() {
 	urls := readResource(r)
 
 	lib.SetPort("8080")
-	lib.Handler(urls)
+	lib.SetHandler(urls, ActionHandler)
+}
+
+func ActionHandler(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprintln(w, req.RequestURI)
 }
 
 // readResource return resource file
