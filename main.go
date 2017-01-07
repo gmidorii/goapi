@@ -31,7 +31,12 @@ func main() {
 }
 
 func ActionHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(w, req.RequestURI)
+	switch req.RequestURI {
+	case "/hello":
+		fmt.Fprintln(w, req.RequestURI)
+	case "/world":
+		fmt.Fprintln(w, "Hi")
+	}
 }
 
 // readResource return resource file
