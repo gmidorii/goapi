@@ -9,16 +9,16 @@ import (
 
 var addr *string
 
-type handlerFunc func(w http.ResponseWriter, req *http.Request)
+//type handlerFunc func(w http.ResponseWriter, req *http.Request)
 
 func SetPort(port string) {
 	addr = flag.String("addr", ":"+port, "http service address")
 }
 
-func SetHandler(urls []string, fn handlerFunc) {
+func SetHandler(urls []string, fn http.HandlerFunc) {
 	fmt.Println(urls)
 	for _, url := range urls {
-		http.Handle(url, http.HandlerFunc(fn))
+		http.Handle(url, fn)
 	}
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {

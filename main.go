@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"net/http"
+	"net/url"
 
 	"fmt"
 
@@ -31,12 +32,39 @@ func main() {
 }
 
 func ActionHandler(w http.ResponseWriter, req *http.Request) {
-	switch req.RequestURI {
+	u, err := url.Parse(req.RequestURI)
+	if err != nil {
+		log.Fatal(err)
+	}
+	param, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO: auto switch
+	switch u.Path {
 	case "/hello":
-		fmt.Fprintln(w, req.RequestURI)
+		HelloAction(w, param)
 	case "/world":
 		fmt.Fprintln(w, "Hi")
+	default:
+		fmt.Fprintln(w, "Default"+req.RequestURI)
 	}
+}
+
+func HelloAction(w http.ResponseWriter, param url.Values) {
+	// sample
+	json := `
+	{
+		"id": "test",
+		"array": [
+			"test1",
+			"test2"
+		]
+	}
+	`
+	// response
+	fmt.Fprintln(w, json)
 }
 
 // readResource return resource file
