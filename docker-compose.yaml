@@ -1,0 +1,17 @@
+# data perpetuation
+datastore:
+    image: busybox
+    volumes:
+        - /Users/midori/opt/datastore:/var/lib/mysql
+    container_name: mysql-datastore
+# mysql
+go_mysql:
+#    image: mysql
+    build: .
+    environment:
+        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    ports:
+        - "3306:3306"
+    volumes_from:
+        - datastore
+    container_name: mysql-db
