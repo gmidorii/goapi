@@ -1,19 +1,29 @@
 package main
 
 import (
+	"go/build"
 	"io"
 	"io/ioutil"
 	"log"
-	"os"
-
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
+	"text/template"
 
 	"fmt"
 
 	"./lib"
 	"gopkg.in/yaml.v2"
 )
+
+var tmpl = template.Must(template.New("").Parse(`package {{.Package}}
+
+func {{.Path}}Handler(w http.ResponseWriter, req *http.Request) {
+	{{.Path}}Action(w, req)
+}
+
+`))
 
 type Resource struct {
 	Url []string
@@ -27,8 +37,42 @@ func main() {
 	defer r.Close()
 	urls := readResource(r)
 
+	if err := Generate("hello"); err != nil {
+		log.Fatal(err)
+	}
 	lib.SetPort("8080")
-	lib.SetHandler(urls, ActionHandler)
+	lib.SetHandler(urls, helloHandler)
+}
+
+func Generate(path string) error {
+	pkg, err := build.Default.ImportDir(".", 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+	f, err := os.Create(fmt.Sprintf("%s_gen.go", strings.ToLower(path)))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	return tmpl.Execute(f, map[string]interface{}{
+		"Package": pkg.Name,
+		"Path":    path,
+	})
+}
+
+func HelloAction(w http.ResponseWriter, req *http.Request) {
+	json := `
+	{
+		"id": "test",
+		"array": [
+			"test10",
+			"test20"
+		]
+	}
+	`
+	// response
+	fmt.Fprintln(w, json)
 }
 
 func ActionHandler(w http.ResponseWriter, req *http.Request) {
@@ -44,7 +88,7 @@ func ActionHandler(w http.ResponseWriter, req *http.Request) {
 	// TODO: auto switch
 	switch u.Path {
 	case "/hello":
-		HelloAction(w, param)
+		HellosAction(w, param)
 	case "/world":
 		fmt.Fprintln(w, "Hi")
 	default:
@@ -52,7 +96,7 @@ func ActionHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func HelloAction(w http.ResponseWriter, param url.Values) {
+func HellosAction(w http.ResponseWriter, param url.Values) {
 	// sample
 	json := `
 	{
