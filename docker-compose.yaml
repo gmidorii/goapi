@@ -2,12 +2,11 @@
 datastore:
     image: busybox
     volumes:
-        - /Users/midori/opt/datastore:/var/lib/mysql
+        - /var/lib/mysql
     container_name: mysql-datastore
 # mysql
 go_mysql:
-#    image: mysql
-    build: .
+    image: mysql
     environment:
         - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     ports:
