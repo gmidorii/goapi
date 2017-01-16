@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"io"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"fmt"
 
 	"./lib"
+	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
 )
 
@@ -64,6 +66,30 @@ func HelloAction(w http.ResponseWriter, param url.Values) {
 	`
 	// response
 	fmt.Fprintln(w, json)
+	UserDao()
+}
+
+func UserDao() {
+	db, err := sql.Open("mysql", "root:@/hoge")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	table := "t_user"
+	rows, err := db.Query(`
+		SELECT * FROM ` + table)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	columns, err := rows.Columns()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	values := make([]sql.RawBytes, len(columns))
+
 }
 
 // readResource return resource file

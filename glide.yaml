@@ -1,3 +1,5 @@
 package: github.com/midorigreen/goapi
 import:
 - package: gopkg.in/yaml.v2
+- package: github.com/go-sql-driver/mysql
+  version: v1.3
