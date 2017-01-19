@@ -11,7 +11,6 @@ import (
 	"fmt"
 
 	"./lib"
-	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
 )
 
