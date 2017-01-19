@@ -11,6 +11,7 @@ import (
 	"fmt"
 
 	"./lib"
+	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
 )
 
@@ -46,25 +47,21 @@ func ActionHandler(w http.ResponseWriter, req *http.Request) {
 		HelloAction(w, param)
 	case "/world":
 		fmt.Fprintln(w, "Hi")
+	case "/insert":
+		InsertAction(w, param)
 	default:
 		fmt.Fprintln(w, "Default"+req.RequestURI)
 	}
 }
 
 func HelloAction(w http.ResponseWriter, param url.Values) {
-	// sample
-	json := `
-	{
-		"id": "test",
-		"array": [
-			"test1",
-			"test2"
-		]
-	}
-	`
-	// response
-	fmt.Fprintln(w, json)
+	fmt.Fprintln(w, "select")
 	lib.UserDao()
+}
+
+func InsertAction(w http.ResponseWriter, param url.Values) {
+	fmt.Fprintln(w, "insert")
+	lib.InsertUserDao()
 }
 
 // readResource return resource file

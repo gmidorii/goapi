@@ -1,4 +1,4 @@
-# create table
+-- create table --
 CREATE TABLE t_user (
   id int PRIMARY KEY AUTO_INCREMENT,
   name varchar(20),
@@ -7,7 +7,7 @@ CREATE TABLE t_user (
   update_time datetime
 );
 
-# update column
+-- update column --
 ALTER TABLE t_user CHANGE
 insert_time
 insert_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
@@ -16,7 +16,7 @@ ALTER TABLE t_user CHANGE
 id
 id int NOT NULL AUTO_INCREMENT PRIMARY KEY;
 
-# insert
+-- insert --
 INSERT INTO t_user (
   name, color, update_time
 ) VALUES (

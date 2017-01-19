@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 func UserDao() {
@@ -53,4 +51,18 @@ func UserDao() {
 		}
 		fmt.Println("----------------------------")
 	}
+}
+
+func InsertUserDao() {
+	db, err := sql.Open("mysql", "root@/hoge")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	result, err := db.Exec("INSERT INTO t_user (name, color, update_time) VALUES ( ? , ? , now());", "test", "red")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(result)
 }
