@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"log"
@@ -17,6 +18,10 @@ import (
 
 type Resource struct {
 	Url []string
+}
+
+type Response struct {
+	Users []lib.User
 }
 
 func main() {
@@ -49,6 +54,8 @@ func ActionHandler(w http.ResponseWriter, req *http.Request) {
 		fmt.Fprintln(w, "Hi")
 	case "/insert":
 		InsertAction(w, param)
+	case "/select":
+		SelectAction(w, param)
 	default:
 		fmt.Fprintln(w, "Default"+req.RequestURI)
 	}
@@ -62,6 +69,17 @@ func HelloAction(w http.ResponseWriter, param url.Values) {
 func InsertAction(w http.ResponseWriter, param url.Values) {
 	fmt.Fprintln(w, "insert")
 	lib.InsertUserDao()
+}
+
+func SelectAction(w http.ResponseWriter, param url.Values) {
+	res := Response{}
+	res.Users = lib.SelectUserAllDao()
+
+	json, err := json.Marshal(res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Fprintln(w, json)
 }
 
 // readResource return resource file

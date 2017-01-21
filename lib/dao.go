@@ -4,7 +4,22 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
+
+type User struct {
+	Name  string `db:name`
+	Color string `db:color`
+}
+
+var selectquery = `
+SELECT name, color FROM t_user;
+`
+
+var insertquery = `
+INSERT INTO t_user (name, color, update_time) VALUES ( ? , ? , now());
+`
 
 func UserDao() {
 	db, err := sql.Open("mysql", "root@/hoge")
@@ -13,9 +28,7 @@ func UserDao() {
 	}
 	defer db.Close()
 
-	table := "t_user"
-	rows, err := db.Query(`
-		SELECT * FROM ` + table)
+	rows, err := db.Query(selectquery)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,6 +66,28 @@ func UserDao() {
 	}
 }
 
+func SelectUserAllDao() []User {
+	db, err := sqlx.Connect("mysql", "root@/hoge")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	users := []User{}
+	err = db.Select(&users, selectquery)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i, val := range users {
+		fmt.Println(i)
+		fmt.Println(val.Name)
+		fmt.Println(val.Color)
+	}
+
+	return users
+}
+
 func InsertUserDao() {
 	db, err := sql.Open("mysql", "root@/hoge")
 	if err != nil {
@@ -60,7 +95,7 @@ func InsertUserDao() {
 	}
 	defer db.Close()
 
-	result, err := db.Exec("INSERT INTO t_user (name, color, update_time) VALUES ( ? , ? , now());", "test", "red")
+	result, err := db.Exec(insertquery, "test", "red")
 	if err != nil {
 		log.Fatal(err)
 	}
