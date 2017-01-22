@@ -79,12 +79,6 @@ func SelectUserAllDao() []User {
 		log.Fatal(err)
 	}
 
-	for i, val := range users {
-		fmt.Println(i)
-		fmt.Println(val.Name)
-		fmt.Println(val.Color)
-	}
-
 	return users
 }
 
