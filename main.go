@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 
 	"fmt"
@@ -30,48 +29,75 @@ func main() {
 		log.Fatal(err)
 	}
 	defer r.Close()
-	urls := readResource(r)
+	//urls := readResource(r)
 
 	lib.SetPort("8080")
-	lib.SetHandler(urls, ActionHandler)
+	//lib.SetHandler(urls, ActionHandlers)
+	lib.SwitchHandler(Actions())
 }
 
-func ActionHandler(w http.ResponseWriter, req *http.Request) {
-	u, err := url.Parse(req.RequestURI)
-	if err != nil {
-		log.Fatal(err)
-	}
-	param, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
-		log.Fatal(err)
-	}
+//func ActionHandlers(w http.ResponseWriter, req *http.Request) {
+//	u, err := url.Parse(req.RequestURI)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	param, err := url.ParseQuery(u.RawQuery)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	// TODO: auto switch
+//	switch u.Path {
+//	case "/hello":
+//		HelloAction(w, param)
+//	case "/world":
+//		fmt.Fprintln(w, "Hi")
+//	case "/insert":
+//		InsertAction(w, param)
+//	case "/select":
+//		SelectAction(w, param)
+//	default:
+//		fmt.Fprintln(w, "Default"+req.RequestURI)
+//	}
+//}
 
-	// TODO: auto switch
-	switch u.Path {
-	case "/hello":
-		HelloAction(w, param)
-	case "/world":
-		fmt.Fprintln(w, "Hi")
-	case "/insert":
-		InsertAction(w, param)
-	case "/select":
-		SelectAction(w, param)
-	default:
-		fmt.Fprintln(w, "Default"+req.RequestURI)
-	}
+func Actions() map[string]interface {
+
+	//actions := make([]lib.Handler, 0, 10)
+	//
+	//actions = append(actions, Hello{"/hello"})
+	//actions = append(actions, Insert{"/insert"})
+	//actions = append(actions, Select{"/select"})
+
+	maps := map[string]interface{}
+
+	maps["/hello"] = Hello{}
+	maps["/insert"] = Insert{}
+	maps["/select"] = Select{}
+
+	return maps
 }
 
-func HelloAction(w http.ResponseWriter, param url.Values) {
+type Hello struct {
+}
+
+func (a *Hello) HelloAction(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "select")
 	lib.UserDao()
 }
 
-func InsertAction(w http.ResponseWriter, param url.Values) {
+type Insert struct {
+}
+
+func (a *Insert) InsertAction(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "insert")
 	lib.InsertUserDao()
 }
 
-func SelectAction(w http.ResponseWriter, param url.Values) {
+type Select struct {
+}
+
+func (a *Select) SelectAction(w http.ResponseWriter, r *http.Request) {
 	res := Response{}
 	res.Users = lib.SelectUserAllDao()
 
