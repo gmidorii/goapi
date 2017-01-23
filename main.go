@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"fmt"
 
@@ -24,52 +23,12 @@ type Response struct {
 }
 
 func main() {
-	r, err := os.Open("./resource.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer r.Close()
-	//urls := readResource(r)
-
 	lib.SetPort("8080")
-	//lib.SetHandler(urls, ActionHandlers)
 	lib.SwitchHandler(Actions())
 }
 
-//func ActionHandlers(w http.ResponseWriter, req *http.Request) {
-//	u, err := url.Parse(req.RequestURI)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	param, err := url.ParseQuery(u.RawQuery)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	// TODO: auto switch
-//	switch u.Path {
-//	case "/hello":
-//		HelloAction(w, param)
-//	case "/world":
-//		fmt.Fprintln(w, "Hi")
-//	case "/insert":
-//		InsertAction(w, param)
-//	case "/select":
-//		SelectAction(w, param)
-//	default:
-//		fmt.Fprintln(w, "Default"+req.RequestURI)
-//	}
-//}
-
-func Actions() map[string]interface {
-
-	//actions := make([]lib.Handler, 0, 10)
-	//
-	//actions = append(actions, Hello{"/hello"})
-	//actions = append(actions, Insert{"/insert"})
-	//actions = append(actions, Select{"/select"})
-
-	maps := map[string]interface{}
+func Actions() map[string]http.Handler {
+	maps := make(map[string]http.Handler)
 
 	maps["/hello"] = Hello{}
 	maps["/insert"] = Insert{}
@@ -81,7 +40,7 @@ func Actions() map[string]interface {
 type Hello struct {
 }
 
-func (a *Hello) HelloAction(w http.ResponseWriter, r *http.Request) {
+func (a Hello) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "select")
 	lib.UserDao()
 }
@@ -89,7 +48,7 @@ func (a *Hello) HelloAction(w http.ResponseWriter, r *http.Request) {
 type Insert struct {
 }
 
-func (a *Insert) InsertAction(w http.ResponseWriter, r *http.Request) {
+func (a Insert) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "insert")
 	lib.InsertUserDao()
 }
@@ -97,7 +56,7 @@ func (a *Insert) InsertAction(w http.ResponseWriter, r *http.Request) {
 type Select struct {
 }
 
-func (a *Select) SelectAction(w http.ResponseWriter, r *http.Request) {
+func (a Select) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res := Response{}
 	res.Users = lib.SelectUserAllDao()
 
