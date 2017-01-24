@@ -5,6 +5,7 @@ datastore:
         - /var/lib/mysql
     container_name: mysql-datastore
 # mysql
+# docker exec -it [ID] mysql -u root
 go_mysql:
     image: mysql
     environment:
