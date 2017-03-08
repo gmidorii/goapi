@@ -14,7 +14,11 @@ import (
 	"./lib"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
+	"strconv"
+	"time"
 )
+
+var cache = make(map[string]string)
 
 type Resource struct {
 	Url []string
@@ -32,8 +36,16 @@ func main() {
 	defer r.Close()
 	urls := readResource(r)
 
+	createCache()
+
 	lib.SetPort("8080")
 	lib.SetHandler(urls, ActionHandler)
+}
+
+func createCache() {
+	for i := 0; i < 10000000; i++ {
+		cache[strconv.Itoa(i)] = strconv.Itoa(i)
+	}
 }
 
 func ActionHandler(w http.ResponseWriter, req *http.Request) {
@@ -56,6 +68,8 @@ func ActionHandler(w http.ResponseWriter, req *http.Request) {
 		InsertAction(w, param)
 	case "/select":
 		SelectAction(w, param)
+	case "/load":
+		load(w)
 	default:
 		fmt.Fprintln(w, "Default"+req.RequestURI)
 	}
@@ -80,6 +94,15 @@ func SelectAction(w http.ResponseWriter, param url.Values) {
 		log.Fatal(err)
 	}
 	fmt.Fprintln(w, json)
+}
+
+func load(w http.ResponseWriter) {
+	start := time.Now()
+	fmt.Println(cache["318419"])
+	fmt.Println(cache["71897"])
+	fmt.Println(cache["52987"])
+	end := time.Now()
+	fmt.Fprintf(w, "%f\n", end.Sub(start).Seconds())
 }
 
 // readResource return resource file
