@@ -6,16 +6,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
-	"os"
 
 	"fmt"
+
+	"os"
+	"strconv"
+	"time"
 
 	"./lib"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/yaml.v2"
-	"strconv"
-	"time"
 )
 
 var cache = make(map[string]string)
@@ -34,12 +34,11 @@ func main() {
 		log.Fatal(err)
 	}
 	defer r.Close()
-	urls := readResource(r)
 
 	createCache()
 
 	lib.SetPort("8080")
-	lib.SetHandler(urls, ActionHandler)
+	lib.SwitchHandler(Actions())
 }
 
 func createCache() {
@@ -48,44 +47,37 @@ func createCache() {
 	}
 }
 
-func ActionHandler(w http.ResponseWriter, req *http.Request) {
-	u, err := url.Parse(req.RequestURI)
-	if err != nil {
-		log.Fatal(err)
-	}
-	param, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
-		log.Fatal(err)
-	}
+func Actions() map[string]http.Handler {
+	maps := make(map[string]http.Handler)
 
-	// TODO: auto switch
-	switch u.Path {
-	case "/hello":
-		HelloAction(w, param)
-	case "/world":
-		fmt.Fprintln(w, "Hi")
-	case "/insert":
-		InsertAction(w, param)
-	case "/select":
-		SelectAction(w, param)
-	case "/load":
-		load(w)
-	default:
-		fmt.Fprintln(w, "Default"+req.RequestURI)
-	}
+	maps["/hello"] = Hello{}
+	maps["/insert"] = Insert{}
+	maps["/select"] = Select{}
+	maps["/load"] = Load{}
+
+	return maps
 }
 
-func HelloAction(w http.ResponseWriter, param url.Values) {
+type Hello struct {
+}
+
+func (a Hello) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "select")
 	lib.UserDao()
 }
 
-func InsertAction(w http.ResponseWriter, param url.Values) {
+type Insert struct {
+}
+
+func (a Insert) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "insert")
 	lib.InsertUserDao()
 }
 
-func SelectAction(w http.ResponseWriter, param url.Values) {
+type Select struct {
+}
+
+func (a Select) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res := Response{}
 	res.Users = lib.SelectUserAllDao()
 
@@ -96,7 +88,10 @@ func SelectAction(w http.ResponseWriter, param url.Values) {
 	fmt.Fprintln(w, json)
 }
 
-func load(w http.ResponseWriter) {
+type Load struct {
+}
+
+func (a Load) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	fmt.Println(cache["318419"])
 	fmt.Println(cache["71897"])
