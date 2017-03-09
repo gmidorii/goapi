@@ -4,3 +4,4 @@ import:
 - package: github.com/go-sql-driver/mysql
   version: v1.3
 - package: github.com/jmoiron/sqlx
+- package: gopkg.in/redis.v5

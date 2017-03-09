@@ -4,3 +4,4 @@ url:
   - /insert
   - /select
   - /load
+  - /load-redis
